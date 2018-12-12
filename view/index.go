@@ -2,20 +2,16 @@ package view
 
 import "ss/model"
 
-type IndexViewModel struct {
-	BaseViewModel
+type IndexView struct {
+	BaseView
 	model.User
 	Posts []model.Post
 }
 
 type IVM struct{}
 
-func (IVM) GetVM() IndexViewModel {
-	u1, u2 := model.User{UserName: "Aaron"}, model.User{UserName: "Allen"}
-	posts := []model.Post{
-		{User: u1, Body: "Today is a good day!"},
-		{User: u2, Body: "Yes it is!"},
-	}
-
-	return IndexViewModel{BaseViewModel{Title: "Homepage"}, u1, posts}
+func (IVM) GetView() IndexView {
+	u1, u2 := model.User{Username: "Aaron"}, model.User{Username: "Allen"}
+	p1, p2 := model.Post{Body: "Today is a good day!", User: u1}, model.Post{Body: "Sure it is!", User: u2}
+	return IndexView{BaseView{Title: "Homepage"}, u1, []model.Post{p1, p2}}
 }

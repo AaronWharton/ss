@@ -1,4 +1,4 @@
-package controller
+package utils
 
 import (
 	"html/template"
@@ -6,8 +6,7 @@ import (
 	"os"
 )
 
-// populateTemplates creates map template named to template.Template
-func populateTemplates() map[string]*template.Template {
+func PopulateTemplates() map[string]*template.Template {
 	const basePath = "templates"
 	result := make(map[string]*template.Template)
 
@@ -31,6 +30,7 @@ func populateTemplates() map[string]*template.Template {
 			if err != nil {
 				panic("Failed to read content from file '" + fi.Name() + "'")
 			}
+			// clone the base.html
 			tmpl := template.Must(layout.Clone())
 			_, err = tmpl.Parse(string(content))
 			if err != nil {

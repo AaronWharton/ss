@@ -4,12 +4,12 @@
         <p><input type="text" name="username" value="" placeholder="Username or Email"></p>
         <p><input type="password" name="password" value="" placeholder="Password"></p>
         <p><input type="submit" name="submit" value="Login"></p>
-        {{if .Errs}}
-            <ul>
-                {{range .Errs}}
-                    <li>{{.}}</li>
-                {{end}}
-            </ul>
-        {{end}}
     </form>
+    {{if .Errs}}
+        <ul>
+            {{range .Errs}}
+                <li>{{.}}</li>
+            {{end}}
+        </ul>
+    {{end}}
 {{end}}

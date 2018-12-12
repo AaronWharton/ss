@@ -1,9 +1,13 @@
 package view
 
-type BaseViewModel struct {
+// all views' configuration
+//
+
+type BaseView struct {
 	Title string
 }
 
-func (v *BaseViewModel) SetTitle(title string) {
+// every view can set its title
+func (v *BaseView) SetTitle(title string) {
 	v.Title = title
 }

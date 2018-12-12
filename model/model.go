@@ -1,7 +1,7 @@
 package model
 
 type User struct {
-	UserName string
+	Username string
 }
 
 type Post struct {

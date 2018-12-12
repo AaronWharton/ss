@@ -1,18 +1,19 @@
 package view
 
-type LoginViewModel struct {
-	BaseViewModel
-	Error []string
+type LoginView struct {
+	BaseView
+	Errors []string			// errors information
 }
 
 type LVM struct{}
 
-func (LoginViewModel) GetVM() LoginViewModel {
-	v := LoginViewModel{}
+func (LVM) GetView() LoginView {
+	v := LoginView{}
 	v.SetTitle("Login")
 	return v
 }
 
-func (v *LoginViewModel) Errors(errs ...string)  {
-	v.Error = append(v.Error, errs...)
+// add login errors information
+func (v *LoginView) AddError(err ...string) {
+	v.Errors = append(v.Errors, err...)
 }
