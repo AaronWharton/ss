@@ -10,6 +10,7 @@ var(
 	templates	map[string]*template.Template
 )
 
+// init template files
 func init() {
 	templates = utils.PopulateTemplates()
 }

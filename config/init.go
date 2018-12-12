@@ -11,6 +11,7 @@ func init() {
 	getConfig(projectName)
 }
 
+// read project config file
 func getConfig(projectName string) {
 	viper.SetConfigName("config")
 
@@ -24,6 +25,7 @@ func getConfig(projectName string) {
 	}
 }
 
+// return mysql config string
 func GetMysqlConnectingString() string {
 	user := viper.GetString("mysql.user")
 	password := viper.GetString("mysql.password")
