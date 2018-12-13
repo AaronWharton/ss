@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/gorilla/context"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	"net/http"
 	"ss/controller"
@@ -12,5 +13,5 @@ func main() {
 	defer db.Close()
 	model.SetDB(db)
 	controller.Start()
-	_ = http.ListenAndServe(":8888", nil)
+	_ = http.ListenAndServe(":8888", context.ClearHandler(http.DefaultServeMux))
 }

@@ -5,11 +5,17 @@ import (
 	"ss/view"
 )
 
-type home struct {}
+type home struct{}
 
 func (h home) RegisterRoutes() {
 	http.HandleFunc("/", indexHandler)
 	http.HandleFunc("/login", loginHandler)
+	http.HandleFunc("/logout", logoutHandler)
+}
+
+func logoutHandler(w http.ResponseWriter, r *http.Request) {
+	_ = ClearSession(w, r)
+	http.Redirect(w, r, "/login", http.StatusTemporaryRedirect)
 }
 
 func loginHandler(w http.ResponseWriter, r *http.Request) {
@@ -32,9 +38,13 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 		if len(password) < 8 {
 			v.AddError("Password must be longer than 8!")
 		}
+		if !view.CheckLogin(username, password) {
+			v.AddError("username and password not correct, please try again!")
+		}
 		if len(v.Errors) > 0 {
 			_ = templates[tplName].Execute(w, &v)
 		} else {
+			_ = SetUserSession(w, r, username)
 			http.Redirect(w, r, "/", http.StatusSeeOther)
 		}
 	}
