@@ -10,8 +10,10 @@ type IndexView struct {
 
 type IVM struct{}
 
-func (IVM) GetView() IndexView {
-	u1, _ := model.GetUserByUsername("aaron")
+func (IVM) GetView(username string) IndexView {
+	u1, _ := model.GetUserByUsername(username)
 	posts, _ := model.GetPostsByUserID(u1.ID)
-	return IndexView{BaseView{Title: "Homepage"}, *u1, *posts}
+	v := IndexView{BaseView{Title: "Homepage"}, *u1, *posts}
+	v.SetCurrentUser(username)
+	return v
 }

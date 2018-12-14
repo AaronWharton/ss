@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"log"
 	"net/http"
 	"ss/view"
 )
@@ -8,9 +9,9 @@ import (
 type home struct{}
 
 func (h home) RegisterRoutes() {
-	http.HandleFunc("/", indexHandler)
+	http.HandleFunc("/", middleAuth(indexHandler))
 	http.HandleFunc("/login", loginHandler)
-	http.HandleFunc("/logout", logoutHandler)
+	http.HandleFunc("/logout", middleAuth(logoutHandler))
 }
 
 func logoutHandler(w http.ResponseWriter, r *http.Request) {
@@ -35,7 +36,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 		if len(username) == 0 {
 			v.AddError("Username must not be blank!")
 		}
-		if len(password) < 8 {
+		if len(password) < 6 {
 			v.AddError("Password must be longer than 8!")
 		}
 		if !view.CheckLogin(username, password) {
@@ -43,14 +44,20 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		if len(v.Errors) > 0 {
 			_ = templates[tplName].Execute(w, &v)
+
 		} else {
-			_ = SetUserSession(w, r, username)
+			if err := SetSessionUser(w, r, username); err != nil {
+				log.Fatalln("can't set session for user: ", username)
+			}
+
 			http.Redirect(w, r, "/", http.StatusSeeOther)
 		}
 	}
 }
 
-func indexHandler(w http.ResponseWriter, _ *http.Request) {
-	v := view.IVM{}.GetView()
-	_ = templates["index.html"].Execute(w, &v)
+func indexHandler(w http.ResponseWriter, r *http.Request) {
+	tpName := "index.html"
+	username, _ := GetSessionUser(r)
+	v := view.IVM{}.GetView(username)
+	_ = templates[tpName].Execute(w, &v)
 }

@@ -14,16 +14,16 @@ var (
 	templates      map[string]*template.Template
 
 	// sessions
-	SessionName string
-	Store       *sessions.CookieStore
+	sessionName string
+	store       *sessions.CookieStore
 )
 
 // init template files
 func init() {
 	templates = utils.PopulateTemplates()
 
-	Store = sessions.NewCookieStore([]byte("something_secret"))
-	SessionName = "ss"		// use project name to sessionName
+	store = sessions.NewCookieStore([]byte("something_secret"))
+	sessionName = "ss" // use project name to sessionName
 }
 
 // activate routes
@@ -31,24 +31,26 @@ func Start() {
 	homeController.RegisterRoutes()
 }
 
-func GetUserSession(r *http.Request) (string, error) {
+func GetSessionUser(r *http.Request) (string, error) {
 	var username string
-	session, err := Store.Get(r, SessionName)
+	session, err := store.Get(r, sessionName)
 	if err != nil {
 		return "", err
 	}
+
 	val := session.Values["user"]
 	fmt.Println("value:", val)
 	username, ok := val.(string)
 	if !ok {
-		return "", errors.New("can not get user session")
+		return "", errors.New("can not get session user")
 	}
+
 	fmt.Println("username:", username)
 	return username, nil
 }
 
-func SetUserSession(w http.ResponseWriter, r *http.Request, username string) error {
-	session, err := Store.Get(r, SessionName)
+func SetSessionUser(w http.ResponseWriter, r *http.Request, username string) error {
+	session, err := store.Get(r, sessionName)
 	if err != nil {
 		return err
 	}
@@ -63,7 +65,7 @@ func SetUserSession(w http.ResponseWriter, r *http.Request, username string) err
 }
 
 func ClearSession(w http.ResponseWriter, r *http.Request) error {
-	session, err := Store.Get(r, SessionName)
+	session, err := store.Get(r, sessionName)
 	if err != nil {
 		return err
 	}

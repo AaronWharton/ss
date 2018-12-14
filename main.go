@@ -13,5 +13,5 @@ func main() {
 	defer db.Close()
 	model.SetDB(db)
 	controller.Start()
-	_ = http.ListenAndServe(":8888", context.ClearHandler(http.DefaultServeMux))
+	_ = http.ListenAndServe(":8080", context.ClearHandler(http.DefaultServeMux))
 }
