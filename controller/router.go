@@ -5,6 +5,8 @@ import (
 	"github.com/gorilla/mux"
 	"log"
 	"net/http"
+	"ss/middleware"
+	"ss/session"
 	"ss/view"
 )
 
@@ -12,19 +14,44 @@ type router struct{}
 
 func (r router) RegisterRoutes() {
 	m := mux.NewRouter()
-	m.HandleFunc("/", middleAuth(indexHandler))
+	m.HandleFunc("/", middleware.MiddleAuth(indexHandler))
 	m.HandleFunc("/register", registerHandler)
 	m.HandleFunc("/login", loginHandler)
-	m.HandleFunc("/logout", middleAuth(logoutHandler))
-	m.HandleFunc("/user/{username}", middleAuth(profileHandler))
+	m.HandleFunc("/logout", middleware.MiddleAuth(logoutHandler))
+	m.HandleFunc("/user/{username}", middleware.MiddleAuth(profileHandler))
+	m.HandleFunc("/profile_edit", middleware.MiddleAuth(profileEditHandler))
 	http.Handle("/", m)
+}
+
+func profileEditHandler(w http.ResponseWriter, r *http.Request) {
+	tpName := "profile_edit.html"
+	username, _ := session.GetSessionUser(r)
+	v := view.PEV{}.GetView(username)
+	if r.Method == http.MethodGet {
+		err := templates[tpName].Execute(w, &v)
+		if err != nil {
+			log.Println(err)
+		}
+	}
+
+	if r.Method == http.MethodPost {
+		_ = r.ParseForm()
+		aboutme := r.Form.Get("aboutme")
+		log.Println(aboutme)
+		if err := view.UpdateAboutMe(username, aboutme); err != nil {
+			log.Println("Update aboutme error: ", err)
+			_, _ = w.Write([]byte("Error update aboutme"))
+			return
+		}
+		http.Redirect(w, r, fmt.Sprintf("/user/%s", username), http.StatusSeeOther)
+	}
 }
 
 func profileHandler(w http.ResponseWriter, r *http.Request) {
 	tpName := "profile.html"
 	vars := mux.Vars(r)
 	pUser := vars["username"]
-	sUser, _ := GetSessionUser(r)
+	sUser, _ := session.GetSessionUser(r)
 	v, err := view.PVM{}.GetView(sUser, pUser)
 	if err != nil {
 		msg := fmt.Sprintf("user ( %s ) doesn't exist", pUser)
@@ -36,7 +63,7 @@ func profileHandler(w http.ResponseWriter, r *http.Request) {
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {
 	tpName := "index.html"
-	username, _ := GetSessionUser(r)
+	username, _ := session.GetSessionUser(r)
 	v := view.IVM{}.GetView(username)
 	_ = templates[tpName].Execute(w, &v)
 }
@@ -64,7 +91,7 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
 				_, _ = w.Write([]byte("Error insert to database"))
 				return
 			}
-			_ = SetSessionUser(w, r, username)
+			_ = session.SetSessionUser(w, r, username)
 			http.Redirect(w, r, "/", http.StatusSeeOther)
 		}
 	}
@@ -87,13 +114,13 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 		if len(v.Errors) > 0 {
 			_ = templates[tplName].Execute(w, &v)
 		} else {
-			_ = SetSessionUser(w, r, username)
+			_ = session.SetSessionUser(w, r, username)
 			http.Redirect(w, r, "/", http.StatusSeeOther)
 		}
 	}
 }
 
 func logoutHandler(w http.ResponseWriter, r *http.Request) {
-	_ = ClearSession(w, r)
+	_ = session.ClearSession(w, r)
 	http.Redirect(w, r, "/login", http.StatusTemporaryRedirect)
 }

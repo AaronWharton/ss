@@ -6,8 +6,11 @@ import (
 )
 
 func GeneratePasswordHash(pwd string) string {
+	return Md5(pwd)
+}
+
+func Md5(str string) string {
 	hash := md5.New()
-	hash.Write([]byte(pwd))
-	pwdHash:=hex.EncodeToString(hash.Sum(nil))
-	return pwdHash
+	hash.Write([]byte(str))
+	return hex.EncodeToString(hash.Sum(nil))
 }

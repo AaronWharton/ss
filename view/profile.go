@@ -6,6 +6,7 @@ type ProfileView struct {
 	BaseView
 	Posts       []model.Post
 	ProfileUser model.User
+	Editable bool
 }
 
 type PVM struct{}
@@ -22,5 +23,6 @@ func (PVM) GetView(sUser, pUser string) (ProfileView, error) {
 	v.ProfileUser = *user
 	v.Posts = *posts
 	v.SetCurrentUser(sUser)
+	v.Editable = sUser == pUser
 	return v, nil
 }

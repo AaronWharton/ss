@@ -1,4 +1,4 @@
-package controller
+package session
 
 import (
 	"errors"
@@ -7,13 +7,13 @@ import (
 	"net/http"
 )
 
-var sessionName string
+var SessionsName string
 
-var store *sessions.CookieStore
+var Store *sessions.CookieStore
 
 func GetSessionUser(r *http.Request) (string, error) {
 	var username string
-	session, err := store.Get(r, sessionName)
+	session, err := Store.Get(r, SessionsName)
 	if err != nil {
 		return "", err
 	}
@@ -30,7 +30,7 @@ func GetSessionUser(r *http.Request) (string, error) {
 }
 
 func SetSessionUser(w http.ResponseWriter, r *http.Request, username string) error {
-	session, err := store.Get(r, sessionName)
+	session, err := Store.Get(r, SessionsName)
 	if err != nil {
 		return err
 	}
@@ -45,7 +45,7 @@ func SetSessionUser(w http.ResponseWriter, r *http.Request, username string) err
 }
 
 func ClearSession(w http.ResponseWriter, r *http.Request) error {
-	session, err := store.Get(r, sessionName)
+	session, err := Store.Get(r, SessionsName)
 	if err != nil {
 		return err
 	}

@@ -1,6 +1,9 @@
 package main
 
-import "ss/model"
+import (
+	"fmt"
+	"ss/model"
+)
 import _ "github.com/jinzhu/gorm/dialects/mysql"
 
 func main() {
@@ -15,6 +18,8 @@ func main() {
 		{
 			Username:     "aaron",
 			PasswordHash: model.GeneratePasswordHash("abc123"),
+			Email:        "aaron@123.com",
+			Avatar:       fmt.Sprintf("https://www.gravatar.com/avatar/%s?d=identicon", model.Md5("aaron@123.com")),
 			Posts: []model.Post{
 				{Body: "Today is a good day!"},
 			},
@@ -22,7 +27,8 @@ func main() {
 		{
 			Username:     "allen",
 			PasswordHash: model.GeneratePasswordHash("123abc"),
-			Email:        "aaron@123.com",
+			Email:        "allen@456.com",
+			Avatar:       fmt.Sprintf("https://www.gravatar.com/avatar/%s?d=identicon", model.Md5("allen@456.com")),
 			Posts: []model.Post{
 				{Body: "Yes it is!"},
 				{Body: "Sun shine is beautiful!"},
