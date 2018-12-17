@@ -2,6 +2,7 @@ package model
 
 import (
 	"fmt"
+	"log"
 	"time"
 )
 
@@ -61,9 +62,89 @@ func (u *User) SetAvatar(email string) {
 	u.Avatar = fmt.Sprintf("https://www.gravatar.com/avatar/%s?d=identicon", Md5(email))
 }
 
+//	Follow and Unfollow user, Followers and Following
+func (u *User) Follow(username string) error {
+	other, err := GetUserByUsername(username)
+	if err != nil {
+		return err
+	}
+
+	return db.Model(other).Association("Followers").Append(u).Error
+}
+
+func (u *User) Unfollow(username string) error {
+	other, err := GetUserByUsername(username)
+	if err != nil {
+		return err
+	}
+
+	return db.Model(other).Association("Followers").Delete(u).Error
+}
+
+func (u *User) FollowSelf() error {
+	return db.Model(u).Association("Followers").Append(u).Error
+}
+
+func (u *User) FollowersCount() int {
+	return db.Model(u).Association("Followers").Count()
+}
+
+func (u *User) FollowingIDs() []int {
+	var ids []int
+	rows, err := db.Table("follower").Where("follower_id = ?", u.ID).Select("user_id, follower_id").Rows()
+	if err != nil {
+		log.Println("Counting following error: ", err)
+		return ids
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var id, followerID int
+		_ = rows.Scan(&id, &followerID)
+		ids = append(ids, id)
+	}
+	return ids
+}
+
+func (u *User) FollowingCount() int {
+	return len(u.FollowingIDs())
+}
+
+func (u *User) FollowingPosts() (*[]Post, error) {
+	var posts []Post
+	if err := db.Preload("User").Order("timestamp desc").Where("user_id in (?)", u.FollowingIDs()).Find(&posts).Error; err != nil {
+		return nil, err
+	}
+
+	return &posts, nil
+}
+
+func (u *User) IsFollowedByUser(username string) bool {
+	user, err := GetUserByUsername(username)
+	if err != nil {
+		log.Printf("User %s does not exist!\n", username)
+	}
+	ids := user.FollowingIDs()
+	for _, id := range ids {
+		if id == u.ID {
+			return true
+		}
+	}
+	return false
+}
+
+func (u *User) CreatePost(body string) error {
+	post := Post{Body:body, UserID:u.ID}
+	return db.Create(&post).Error
+}
+
 func AddUser(username, password, email string) error {
 	user := User{Username: username, Email: email}
 	user.SetPassword(password)
 	user.SetAvatar(email)
-	return db.Create(&user).Error
+	if err := db.Create(&user).Error; err != nil {
+		return err
+	}
+	// follow self when add user
+	return user.FollowSelf()
 }

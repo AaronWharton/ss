@@ -20,7 +20,39 @@ func (r router) RegisterRoutes() {
 	m.HandleFunc("/logout", middleware.MiddleAuth(logoutHandler))
 	m.HandleFunc("/user/{username}", middleware.MiddleAuth(profileHandler))
 	m.HandleFunc("/profile_edit", middleware.MiddleAuth(profileEditHandler))
+	m.HandleFunc("/follow/{username}", middleware.MiddleAuth(followHandler))
+	m.HandleFunc("/unfollow/{username}", middleware.MiddleAuth(unfollowHandler))
 	http.Handle("/", m)
+}
+
+func followHandler(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	pUser := vars["username"]
+	sUser, _ := session.GetSessionUser(r)
+
+	err := view.Follow(sUser, pUser)
+	if err != nil {
+		log.Println("Follow error: ", err)
+		_, _ = w.Write([]byte("Error in Follow()"))
+		return
+	}
+
+	http.Redirect(w, r, fmt.Sprintf("/user/%s", pUser), http.StatusSeeOther)
+}
+
+func unfollowHandler(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	pUser := vars["username"]
+	sUser, _ := session.GetSessionUser(r)
+
+	err := view.Unfollow(sUser, pUser)
+	if err != nil {
+		log.Println("Unfollow error: ", err)
+		_, _ = w.Write([]byte("Error in Unfollow()"))
+		return
+	}
+
+	http.Redirect(w, r, fmt.Sprintf("/user/%s", pUser), http.StatusSeeOther)
 }
 
 func profileEditHandler(w http.ResponseWriter, r *http.Request) {
@@ -36,11 +68,11 @@ func profileEditHandler(w http.ResponseWriter, r *http.Request) {
 
 	if r.Method == http.MethodPost {
 		_ = r.ParseForm()
-		aboutme := r.Form.Get("aboutme")
-		log.Println(aboutme)
-		if err := view.UpdateAboutMe(username, aboutme); err != nil {
-			log.Println("Update aboutme error: ", err)
-			_, _ = w.Write([]byte("Error update aboutme"))
+		about := r.Form.Get("about")
+		log.Println(about)
+		if err := view.UpdateAboutMe(username, about); err != nil {
+			log.Println("Update about error: ", err)
+			_, _ = w.Write([]byte("Error update about"))
 			return
 		}
 		http.Redirect(w, r, fmt.Sprintf("/user/%s", username), http.StatusSeeOther)
