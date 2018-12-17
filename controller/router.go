@@ -1,6 +1,8 @@
 package controller
 
 import (
+	"fmt"
+	"github.com/gorilla/mux"
 	"log"
 	"net/http"
 	"ss/view"
@@ -9,10 +11,27 @@ import (
 type router struct{}
 
 func (r router) RegisterRoutes() {
-	http.HandleFunc("/", middleAuth(indexHandler))
-	http.HandleFunc("/register", registerHandler)
-	http.HandleFunc("/login", loginHandler)
-	http.HandleFunc("/logout", middleAuth(logoutHandler))
+	m := mux.NewRouter()
+	m.HandleFunc("/", middleAuth(indexHandler))
+	m.HandleFunc("/register", registerHandler)
+	m.HandleFunc("/login", loginHandler)
+	m.HandleFunc("/logout", middleAuth(logoutHandler))
+	m.HandleFunc("/user/{username}", middleAuth(profileHandler))
+	http.Handle("/", m)
+}
+
+func profileHandler(w http.ResponseWriter, r *http.Request) {
+	tpName := "profile.html"
+	vars := mux.Vars(r)
+	pUser := vars["username"]
+	sUser, _ := GetSessionUser(r)
+	v, err := view.PVM{}.GetView(sUser, pUser)
+	if err != nil {
+		msg := fmt.Sprintf("user ( %s ) doesn't exist", pUser)
+		_, _ = w.Write([]byte(msg))
+		return
+	}
+	_ = templates[tpName].Execute(w, &v)
 }
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {
