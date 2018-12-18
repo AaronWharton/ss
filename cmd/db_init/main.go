@@ -26,6 +26,20 @@ func main() {
 	u2, _ := model.GetUserByUsername("allen")
 	u2.CreatePost("Yes it is!")
 	u2.CreatePost("How do you do?")
+	u2.CreatePost("How do you do?")
+	u2.CreatePost("How do you do?")
+	u2.CreatePost("How do you do?")
+	u2.CreatePost("How do you do?")
+	u2.CreatePost("How do you do?")
+	u2.CreatePost("How do you do?")
+	u2.CreatePost("How do you do?")
+	u2.CreatePost("How do you do?")
+	u2.CreatePost("How do you do?")
+	u2.CreatePost("How do you do?")
+	u2.CreatePost("How do you do?")
+	u2.CreatePost("How do you do?")
+	u2.CreatePost("How do you do?")
+
 
 	u1.Follow(u2.Username)
 }

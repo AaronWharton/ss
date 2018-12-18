@@ -4,6 +4,7 @@ import "ss/model"
 
 type ProfileView struct {
 	BaseView
+	BasePageView
 	Posts          []model.Post
 	ProfileUser    model.User
 	Editable       bool
@@ -14,16 +15,17 @@ type ProfileView struct {
 
 type PVM struct{}
 
-func (PVM) GetView(sUser, pUser string) (ProfileView, error) {
+func (PVM) GetView(sUser, pUser string, current, limit int) (ProfileView, error) {
 	v := ProfileView{}
 	v.SetTitle("Profile")
 	u, err := model.GetUserByUsername(pUser)
 	if err != nil {
 		return v, err
 	}
-	posts, _ := model.GetPostsByUserID(u.ID)
+	posts, total, _ := model.GetPostByUserIDPageAndLimit(u.ID, current, limit)
 	v.ProfileUser = *u
-	v.Editable = (sUser == pUser)
+	v.Editable = sUser == pUser
+	v.SetBasePageView(total, current, limit)
 
 	if !v.Editable {
 		v.IsFollowed = u.IsFollowedByUser(sUser)

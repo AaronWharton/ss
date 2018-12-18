@@ -1,11 +1,13 @@
 package model
 
-import "time"
+import (
+	"time"
+)
 
 type Post struct {
 	ID        int `gorm:"primary_key"`
 	UserID    int
-	User      User	// TODO: why can not use `User` only?
+	User      User // TODO: why can not use `User` only?
 	Body      string     `gorm:"type:varchar(180)"`
 	Timestamp *time.Time `sql:"DEFAULT:current_timestamp"`
 }
@@ -17,4 +19,15 @@ func GetPostsByUserID(id int) (*[]Post, error) {
 	}
 
 	return &posts, nil
+}
+
+func GetPostByUserIDPageAndLimit(id, current, limit int) (*[]Post, int, error) {
+	var total int
+	var posts []Post
+	offset := (current - 1) * limit
+	if err := db.Preload("User").Order("timestamp desc").Where("user_id=?", id).Offset(offset).Limit(limit).Find(&posts).Error; err != nil {
+		return nil, total, err
+	}
+	db.Model(&Post{}).Where("user_id=?", id).Count(&total)
+	return &posts, total, nil
 }

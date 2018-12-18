@@ -10,7 +10,8 @@ import (
 var (
 	routerController router
 	templates        map[string]*template.Template
-	flashName            string
+	flashName        string
+	pageLimit        int
 )
 
 // init template files
@@ -21,6 +22,8 @@ func init() {
 	session.SessionsName = "ss" // use project name to sessionName
 
 	flashName = "ss-flash"
+
+	pageLimit = 5
 }
 
 // activate routes

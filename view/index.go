@@ -6,14 +6,20 @@ type IndexView struct {
 	BaseView
 	Posts []model.Post
 	Flash string
+
+	BasePageView
 }
 
 type IVM struct{}
 
-func (IVM) GetView(username, flash string) IndexView {
+func (IVM) GetView(username, flash string, current, limit int) IndexView {
 	u, _ := model.GetUserByUsername(username)
-	posts, _ := u.FollowingPosts()
-	v := IndexView{BaseView{Title: "HomePage"}, *posts, flash}
+	posts, total, _ := u.FollowingPostsByPageAndLimit(current, limit)
+	v := IndexView{}
+	v.SetTitle("HomePage")
+	v.Posts = *posts
+	v.Flash = flash
+	v.SetBasePageView(total, current, limit)
 	v.SetCurrentUser(username)
 	return v
 }

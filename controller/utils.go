@@ -6,6 +6,7 @@ import (
 	"regexp"
 	"ss/session"
 	"ss/view"
+	"strconv"
 )
 
 // Login Check
@@ -104,4 +105,21 @@ func getFlash(w http.ResponseWriter, r *http.Request) string {
 
 	_ = session2.Save(r, w)
 	return fmt.Sprintf("%v", fm[0])
+}
+
+// page
+func getPage(r *http.Request) int {
+	url := r.URL
+	query := url.Query()
+
+	q := query.Get("page")
+	if q == "" {
+		return 1
+	}
+
+	page, err := strconv.Atoi(q)
+	if err != nil {
+		return 1
+	}
+	return page
 }

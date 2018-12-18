@@ -84,7 +84,8 @@ func profileHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	pUser := vars["username"]
 	sUser, _ := session.GetSessionUser(r)
-	v, err := view.PVM{}.GetView(sUser, pUser)
+	current := getPage(r)
+	v, err := view.PVM{}.GetView(sUser, pUser, current, pageLimit)
 	if err != nil {
 		msg := fmt.Sprintf("user ( %s ) doesn't exist", pUser)
 		_, _ = w.Write([]byte(msg))
@@ -95,10 +96,11 @@ func profileHandler(w http.ResponseWriter, r *http.Request) {
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {
 	tpName := "index.html"
+	current := getPage(r)
 	username, _ := session.GetSessionUser(r)
 	if r.Method == http.MethodGet {
 		flash := getFlash(w, r)
-		v := view.IVM{}.GetView(username, flash)
+		v := view.IVM{}.GetView(username, flash, current, pageLimit)
 		_ = templates[tpName].Execute(w, &v)
 	}
 	if r.Method == http.MethodPost {
