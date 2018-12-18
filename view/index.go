@@ -4,16 +4,21 @@ import "ss/model"
 
 type IndexView struct {
 	BaseView
-	model.User
 	Posts []model.Post
+	Flash string
 }
 
 type IVM struct{}
 
-func (IVM) GetView(username string) IndexView {
-	u1, _ := model.GetUserByUsername(username)
-	posts, _ := model.GetPostsByUserID(u1.ID)
-	v := IndexView{BaseView{Title: "Homepage"}, *u1, *posts}
+func (IVM) GetView(username, flash string) IndexView {
+	u, _ := model.GetUserByUsername(username)
+	posts, _ := u.FollowingPosts()
+	v := IndexView{BaseView{Title: "HomePage"}, *posts, flash}
 	v.SetCurrentUser(username)
 	return v
+}
+
+func CreatePost(username, post string) error {
+	u, _ := model.GetUserByUsername(username)
+	return u.CreatePost(post)
 }

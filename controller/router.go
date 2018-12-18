@@ -96,8 +96,27 @@ func profileHandler(w http.ResponseWriter, r *http.Request) {
 func indexHandler(w http.ResponseWriter, r *http.Request) {
 	tpName := "index.html"
 	username, _ := session.GetSessionUser(r)
-	v := view.IVM{}.GetView(username)
-	_ = templates[tpName].Execute(w, &v)
+	if r.Method == http.MethodGet {
+		flash := getFlash(w, r)
+		v := view.IVM{}.GetView(username, flash)
+		_ = templates[tpName].Execute(w, &v)
+	}
+	if r.Method == http.MethodPost {
+		_ = r.ParseForm()
+		body := r.Form.Get("body")
+		errMsg := checkLen("Post", body, 1, 180)
+		if errMsg != "" {
+			setFlash(w, r, errMsg)
+		} else {
+			err := view.CreatePost(username, body)
+			if err != nil {
+				log.Println("Add post error: ", err)
+				_, _ = w.Write([]byte("Error insert post in database"))
+				return
+			}
+		}
+		http.Redirect(w, r, "/", http.StatusSeeOther)
+	}
 }
 
 func registerHandler(w http.ResponseWriter, r *http.Request) {

@@ -10,6 +10,7 @@ import (
 var (
 	routerController router
 	templates        map[string]*template.Template
+	flashName            string
 )
 
 // init template files
@@ -18,6 +19,8 @@ func init() {
 
 	session.Store = sessions.NewCookieStore([]byte("something_secret"))
 	session.SessionsName = "ss" // use project name to sessionName
+
+	flashName = "ss-flash"
 }
 
 // activate routes

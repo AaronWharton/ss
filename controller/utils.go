@@ -2,7 +2,9 @@ package controller
 
 import (
 	"fmt"
+	"net/http"
 	"regexp"
+	"ss/session"
 	"ss/view"
 )
 
@@ -47,7 +49,6 @@ func checkUserExist(username string) string {
 	return ""
 }
 
-
 func checkLogin(username, password string) []string {
 	var errs []string
 	if errCheck := checkUsername(username); len(errCheck) > 0 {
@@ -61,7 +62,6 @@ func checkLogin(username, password string) []string {
 	}
 	return errs
 }
-
 
 func checkRegister(username, email, pwd1, pwd2 string) []string {
 	var errs []string
@@ -86,4 +86,22 @@ func checkRegister(username, email, pwd1, pwd2 string) []string {
 // addUser()
 func addUser(username, password, email string) error {
 	return view.AddUser(username, password, email)
+}
+
+// flash message
+func setFlash(w http.ResponseWriter, r *http.Request, message string) {
+	session2, _ := session.Store.Get(r, session.SessionsName)
+	session2.AddFlash(message, flashName)
+	_ = session2.Save(r, w)
+}
+
+func getFlash(w http.ResponseWriter, r *http.Request) string {
+	session2, _ := session.Store.Get(r, session.SessionsName)
+	fm := session2.Flashes(flashName)
+	if fm == nil {
+		return ""
+	}
+
+	_ = session2.Save(r, w)
+	return fmt.Sprintf("%v", fm[0])
 }
