@@ -22,7 +22,16 @@ func (r router) RegisterRoutes() {
 	m.HandleFunc("/profile_edit", middleware.MiddleAuth(profileEditHandler))
 	m.HandleFunc("/follow/{username}", middleware.MiddleAuth(followHandler))
 	m.HandleFunc("/unfollow/{username}", middleware.MiddleAuth(unfollowHandler))
+	m.HandleFunc("/explore", middleware.MiddleAuth(exploreHandler))
 	http.Handle("/", m)
+}
+
+func exploreHandler(w http.ResponseWriter, r *http.Request) {
+	tpName := "explore.html"
+	username, _ := session.GetSessionUser(r)
+	current := getPage(r)
+	v := view.EVM{}.GetView(username, current, pageLimit)
+	_ = templates[tpName].Execute(w, &v)
 }
 
 func followHandler(w http.ResponseWriter, r *http.Request) {

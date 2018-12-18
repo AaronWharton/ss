@@ -31,3 +31,14 @@ func GetPostByUserIDPageAndLimit(id, current, limit int) (*[]Post, int, error) {
 	db.Model(&Post{}).Where("user_id=?", id).Count(&total)
 	return &posts, total, nil
 }
+
+func GetPostByPageAndLimit(current, limit int) (*[]Post, int, error) {
+	var total int
+	var posts []Post
+	offset := (current - 1) * limit
+	if err := db.Preload("User").Offset(offset).Limit(limit).Order("timestamp desc").Find(&posts).Error; err != nil {
+		return nil, total, nil
+	}
+	db.Model(&Post{}).Count(&total)
+	return &posts, total, nil
+}
