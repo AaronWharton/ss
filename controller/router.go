@@ -3,6 +3,7 @@ package controller
 import (
 	"fmt"
 	"github.com/gorilla/mux"
+	"html/template"
 	"log"
 	"net/http"
 	"ss/middleware"
@@ -23,7 +24,16 @@ func (r router) RegisterRoutes() {
 	m.HandleFunc("/follow/{username}", middleware.MiddleAuth(followHandler))
 	m.HandleFunc("/unfollow/{username}", middleware.MiddleAuth(unfollowHandler))
 	m.HandleFunc("/explore", middleware.MiddleAuth(exploreHandler))
+	m.NotFoundHandler = http.HandlerFunc(notfoundHandler)
+	m.HandleFunc("/404", notfoundHandler)
 	http.Handle("/", m)
+}
+
+func notfoundHandler(w http.ResponseWriter, r *http.Request) {
+	flash := getFlash(w, r)
+	message := view.NotFoundMessage{Flash: flash}
+	tpl, _ := template.ParseFiles("templates/404.html")
+	_ = tpl.Execute(w, &message)
 }
 
 func exploreHandler(w http.ResponseWriter, r *http.Request) {
