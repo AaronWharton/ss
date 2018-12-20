@@ -48,6 +48,10 @@ func UpdateUserByUsername(username string, contents map[string]interface{}) erro
 	return db.Model(user).Update(contents).Error
 }
 
+func (u *User) FormattedLastSeen() string {
+	return u.LastSeen.Format("Mon Jan 2 15:04:05 2006")
+}
+
 func UpdateLastSeen(username string) error {
 	contents := map[string]interface{}{"last_seen": time.Now()}
 	return UpdateUserByUsername(username, contents)

@@ -10,7 +10,7 @@
                 {{end}}
 
                 {{if .ProfileUser.LastSeen}}
-                    <p>Last seen on: {{ .ProfileUser.LastSeen }}</p>
+                    <p>Last seen on: {{ .ProfileUser.FormattedLastSeen }}</p>
                 {{end}}
 
                 <p>{{ .FollowersCount }} followers, {{ .FollowingCount }} following.</p>
@@ -19,9 +19,9 @@
                     <p><a href="/profile_edit">Edit your profile</a></p>
                 {{else}}
                     {{if .IsFollow}}
-                        <p><a  class="btn btn-outline-primary" href="/unfollow/{{.ProfileUser.Username}}">Unfollow</a></p>
+                        <p><a  class="btn btn-outline-primary" href="/unfollow/{{ .ProfileUser.Username }}">Unfollow</a></p>
                     {{else}}
-                        <p><a  class="btn btn-outline-primary" href="/follow/{{.ProfileUser.Username}}">Follow</a></p>
+                        <p><a  class="btn btn-outline-primary" href="/follow/{{ .ProfileUser.Username }}">Follow</a></p>
                     {{end}}
                 {{end}}
             </td>
@@ -34,7 +34,7 @@
         <table class="table table-hover">
             <tr valign="top">
                 <td width="36px"><img src="{{.User.Avatar}}&s=36"></td>
-                <td><a href="/user/{{.User.Username}}">{{ .User.Username }}</a> says:<br>{{ .Body }}</td>
+                <td><a href="/user/{{.User.Username}}">{{ .User.Username }}</a> said {{.FormattedTimeAgo}}:<br>{{ .Body }}</td>
             </tr>
         </table>
     {{end}}
@@ -43,7 +43,7 @@
         <ul class="pagination justify-content-center">
             {{ if gt .PrevPage 0 }}
                 <li class="page-item">
-                    <a href="/user/{{.ProfileUser.Username}}?page={{.PrevPage}}">
+                    <a href="/user/{{ .ProfileUser.Username }}?page={{ .PrevPage }}">
                         <span class="page-link" aria-hidden="true">&larr; Newer Posts</span>
                     </a>
                 </li>
@@ -56,7 +56,7 @@
             {{ end }}
             {{ if gt .NextPage 0 }}
                 <li class="page-item">
-                    <a href="/user/{{.ProfileUser.Username}}?page={{.NextPage}}">
+                    <a href="/user/{{ .ProfileUser.Username }}?page={{ .NextPage }}">
                         <span class="page-link" aria-hidden="true">Older Posts &rarr;</span>
                     </a>
                 </li>
